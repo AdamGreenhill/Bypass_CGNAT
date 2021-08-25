@@ -37,7 +37,7 @@ else
   read -p 'Number: ' SERVERTYPE
 fi
 
-if ! [ $SERVERTYPE -eq 1 -o $SERVERTYPE -eq 2 ] 2>/dev/null; then
+if ! [ $SERVERTYPE -eq 1 -o $SERVERTYPE -eq 2 ] ; then
   echo "Incorrect Entry.  Exiting..."
   exit
 fi
@@ -63,11 +63,11 @@ fi
 echo -e "\e[92mDone.\e[0m"
 echo ""
 echo "Configuring Forwarding Settings"
-if grep -e "^net.ipv4.ip_forward=1$" /etc/sysctl.conf >/dev/null; then
+if grep -e "^net.ipv4.ip_forward=1$" /etc/sysctl.conf; then
   echo -e "\e[92mAlready set correctly.\e[0m"
 else
   sed -i 's/^\#net.ipv4.ip_forward=1$/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
-  if ! grep -e "^net.ipv4.ip_forward=1$" /etc/sysctl.conf >/dev/null; then
+  if ! grep -e "^net.ipv4.ip_forward=1$" /etc/sysctl.conf; then
     echo -e "\e[92mAppending to /etc/sysctl.conf\e[0m"
     echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
   fi
@@ -123,8 +123,8 @@ done
 
 #Set the Configuration Files
 echo "Writing the configuration files..."
-umask 077 && printf "[Interface]\nPrivateKey = " | sudo tee /etc/wireguard/wg0.conf > /dev/null
-sudo wg genkey | tee -a /etc/wireguard/wg0.conf | wg pubkey | sudo tee /etc/wireguard/publickey > /dev/null
+umask 077 && printf "[Interface]\nPrivateKey = " | sudo tee /etc/wireguard/wg0.conf
+sudo wg genkey | tee -a /etc/wireguard/wg0.conf | wg pubkey | sudo tee /etc/wireguard/publickey
 echo -e "\e[92mDone.\e[0m"
 echo ""
 
@@ -186,7 +186,7 @@ if [ $SERVERTYPE -eq 1 ]; then
   systemctl start wg-quick@wg0
   echo ""
   echo "Waiting for connection..."
-  while ! ping -c 1 -W 1 $WG_CLIENT_IP > /dev/null; do
+  while ! ping -c 1 -W 1 $WG_CLIENT_IP; do
     printf '.'
     sleep 2
   done
@@ -204,18 +204,18 @@ if [ $SERVERTYPE -eq 1 ]; then
     exit
   fi
   echo "Adding OpenSSH($SSHD_PORT/tcp)"
-  ufw allow $SSHD_PORT/tcp > /dev/null
+  ufw allow $SSHD_PORT/tcp
   echo "Adding Wireguard Port($WGPORT)"
-  ufw allow $WGPORT > /dev/null
+  ufw allow $WGPORT
   for i in $(echo $PORTLIST | sed "s/,/ /g")
   do
     PORT=$(echo $i| cut -d'/' -f 1)
     PROT=$(echo $i| cut -d'/' -f 2)
     echo "Adding $PORT/$PROT"
-    ufw allow $PORT/$PROT > /dev/null
+    ufw allow $PORT/$PROT
   done
   echo "Allowing routing"
-  ufw default allow routed > /dev/null
+  ufw default allow routed
   echo "Deny all other traffic"
   ufw default allow routed
   echo -e "\e[92mDone.\e[0m"
@@ -275,7 +275,7 @@ else
   echo "Starting Wireguard..."
   systemctl start wg-quick@wg0
   echo "Waiting for connection"
-  while ! ping -c 1 -W 1 $WG_SERVER_IP > /dev/null; do
+  while ! ping -c 1 -W 1 $WG_SERVER_IP; do
     printf '.'
     sleep 1
   done
